@@ -1,6 +1,6 @@
 # Planifica
 
-Base de proyecto web para una aplicacion de productividad personal con React, Vite, Node.js, Express y MySQL.
+Base de proyecto web para una aplicacion de productividad personal con React, Vite, Node.js, Express y PostgreSQL.
 
 ## Estructura
 
@@ -23,13 +23,13 @@ PLANIFICA/
       pages/
       styles/
   database/
-    schema.sql
+    supabase_schema.sql
 ```
 
 ## Base de datos
 
-1. Crea la base de datos y tablas ejecutando `database/schema.sql` en MySQL.
-2. Copia `backend/.env.example` a `backend/.env` y ajusta credenciales.
+1. Crea la base de datos y tablas ejecutando `database/supabase_schema.sql` en PostgreSQL o Supabase.
+2. Copia `backend/.env.example` a `backend/.env` y completa las variables obligatorias, incluido `JWT_SECRET`.
 
 ## Backend
 

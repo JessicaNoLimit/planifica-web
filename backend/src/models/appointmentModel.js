@@ -1,15 +1,15 @@
 import { pool } from '../config/db.js';
 
 export async function listAppointments(userId) {
-  const [rows] = await pool.query(
-    'SELECT * FROM appointments WHERE user_id = ? ORDER BY fecha ASC, hora ASC',
+  const { rows } = await pool.query(
+    'SELECT * FROM appointments WHERE user_id = $1 ORDER BY fecha ASC, hora ASC',
     [userId]
   );
   return rows;
 }
 
 export async function findAppointmentById(userId, id) {
-  const [rows] = await pool.query('SELECT * FROM appointments WHERE id = ? AND user_id = ?', [id, userId]);
+  const { rows } = await pool.query('SELECT * FROM appointments WHERE id = $1 AND user_id = $2', [id, userId]);
   return rows[0] || null;
 }
 
@@ -17,10 +17,11 @@ export async function createAppointment(userId, appointment) {
   const estado = appointment.estado || 'programada';
   const completedAt = estado === 'completada' ? new Date() : null;
 
-  const [result] = await pool.query(
+  const { rows } = await pool.query(
     `INSERT INTO appointments
      (user_id, titulo, descripcion, fecha, hora, estado, completed_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING id`,
     [
       userId,
       appointment.titulo,
@@ -31,7 +32,7 @@ export async function createAppointment(userId, appointment) {
       completedAt
     ]
   );
-  return findAppointmentById(userId, result.insertId);
+  return findAppointmentById(userId, rows[0].id);
 }
 
 export async function updateAppointment(userId, id, appointment) {
@@ -53,8 +54,8 @@ export async function updateAppointment(userId, id, appointment) {
 
   await pool.query(
     `UPDATE appointments
-     SET titulo = ?, descripcion = ?, fecha = ?, hora = ?, estado = ?, completed_at = ?
-     WHERE id = ? AND user_id = ?`,
+     SET titulo = $1, descripcion = $2, fecha = $3, hora = $4, estado = $5, completed_at = $6
+     WHERE id = $7 AND user_id = $8`,
     [
       nextAppointment.titulo,
       nextAppointment.descripcion || null,
@@ -70,6 +71,6 @@ export async function updateAppointment(userId, id, appointment) {
 }
 
 export async function deleteAppointment(userId, id) {
-  const [result] = await pool.query('DELETE FROM appointments WHERE id = ? AND user_id = ?', [id, userId]);
-  return result.affectedRows > 0;
+  const result = await pool.query('DELETE FROM appointments WHERE id = $1 AND user_id = $2', [id, userId]);
+  return result.rowCount > 0;
 }

@@ -2,6 +2,10 @@ import { useMemo, useState } from 'react';
 import { requestPasswordReset, resetPassword } from '../api/auth.js';
 import AuthBrandBackground from '../components/AuthBrandBackground.jsx';
 import AuthBrandHero from '../components/AuthBrandHero.jsx';
+import { executeRecaptcha } from '../utils/recaptcha.js';
+
+const RECAPTCHA_ERROR_MESSAGE =
+  'No se pudo completar la verificacion anti-bot. Intentalo de nuevo.';
 
 export default function ResetPasswordPage({ onGoToLogin }) {
   const token = useMemo(() => {
@@ -37,6 +41,17 @@ export default function ResetPasswordPage({ onGoToLogin }) {
     setRecoveryEmail(event.target.value);
   }
 
+  function normalizeError(err) {
+    if (
+      err?.message === 'Missing VITE_RECAPTCHA_SITE_KEY' ||
+      err?.message === 'reCAPTCHA unavailable'
+    ) {
+      return RECAPTCHA_ERROR_MESSAGE;
+    }
+
+    return err?.message || RECAPTCHA_ERROR_MESSAGE;
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setError('');
@@ -44,23 +59,23 @@ export default function ResetPasswordPage({ onGoToLogin }) {
 
     if (!token) {
       setInvalidToken(true);
-      setError('El enlace no es válido o ha caducado.');
+      setError('El enlace no es valido o ha caducado.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden.');
+      setError('Las contrasenas no coinciden.');
       return;
     }
 
     try {
       const data = await resetPassword(token, password);
-      setSuccess(data.message || 'Contraseña actualizada correctamente.');
+      setSuccess(data.message || 'Contrasena actualizada correctamente.');
       setPassword('');
       setConfirmPassword('');
       setInvalidToken(false);
     } catch (err) {
-      const message = err.message || 'El enlace no es válido o ha caducado.';
+      const message = err.message || 'El enlace no es valido o ha caducado.';
       setError(message);
       if (message.toLowerCase().includes('enlace') || message.toLowerCase().includes('token')) {
         setInvalidToken(true);
@@ -74,14 +89,19 @@ export default function ResetPasswordPage({ onGoToLogin }) {
     setRecoverySuccess('');
 
     try {
-      const data = await requestPasswordReset(recoveryEmail);
+      const recaptchaToken = await executeRecaptcha('forgot_password');
+      const data = await requestPasswordReset({
+        email: recoveryEmail,
+        recaptchaToken,
+        recaptchaAction: 'forgot_password'
+      });
       setRecoverySuccess(
         data.message ||
-          'Si el email existe, te enviaremos un nuevo enlace para restablecer tu contraseña.'
+          'Si el email existe, te enviaremos un nuevo enlace para restablecer tu contrasena.'
       );
       setRecoveryEmail('');
     } catch (err) {
-      setError(err.message);
+      setError(normalizeError(err));
     }
   }
 
@@ -93,19 +113,19 @@ export default function ResetPasswordPage({ onGoToLogin }) {
           <AuthBrandHero />
           <h1>
             {success
-              ? 'Contraseña actualizada correctamente'
+              ? 'Contrasena actualizada correctamente'
               : invalidToken
-                ? 'No hemos podido restablecer tu contraseña'
-                : 'Restablece tu contraseña'}
+                ? 'No hemos podido restablecer tu contrasena'
+                : 'Restablece tu contrasena'}
           </h1>
         </div>
 
         {success ? (
           <div className="auth-success-state" role="status">
-            <h2>Contraseña actualizada correctamente</h2>
-            <p className="muted">Ya puedes iniciar sesión en Planifica.</p>
+            <h2>Contrasena actualizada correctamente</h2>
+            <p className="muted">Ya puedes iniciar sesion en Planifica.</p>
             <button className="primary-button" onClick={onGoToLogin} type="button">
-              Ir al inicio de sesión
+              Ir al inicio de sesion
             </button>
           </div>
         ) : invalidToken ? (
@@ -129,9 +149,13 @@ export default function ResetPasswordPage({ onGoToLogin }) {
                 />
               </label>
 
+              <p className="auth-helper">
+                El formulario requiere verificacion anti-bot antes de enviar la solicitud.
+              </p>
+
               {recoverySuccess && (
                 <p className="auth-notice" role="status">
-                  Si el email existe, te enviaremos un nuevo enlace para restablecer tu contraseña.
+                  Si el email existe, te enviaremos un nuevo enlace para restablecer tu contrasena.
                 </p>
               )}
 
@@ -143,14 +167,14 @@ export default function ResetPasswordPage({ onGoToLogin }) {
             </form>
 
             <button className="link-button" onClick={onGoToLogin} type="button">
-              Ir al inicio de sesión
+              Ir al inicio de sesion
             </button>
           </>
         ) : (
           <>
             <form className="form" onSubmit={handleSubmit}>
               <label>
-                Nueva contraseña
+                Nueva contrasena
                 <input
                   type="password"
                   value={password}
@@ -160,7 +184,7 @@ export default function ResetPasswordPage({ onGoToLogin }) {
               </label>
 
               <label>
-                Confirmar contraseña
+                Confirmar contrasena
                 <input
                   type="password"
                   value={confirmPassword}
@@ -172,12 +196,12 @@ export default function ResetPasswordPage({ onGoToLogin }) {
               {error && <p className="error">{error}</p>}
 
               <button className="primary-button" type="submit">
-                Guardar nueva contraseña
+                Guardar nueva contrasena
               </button>
             </form>
 
             <button className="link-button" onClick={onGoToLogin} type="button">
-              Ir al inicio de sesión
+              Ir al inicio de sesion
             </button>
           </>
         )}

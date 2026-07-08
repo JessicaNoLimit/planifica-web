@@ -2,6 +2,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const jwtSecret = process.env.JWT_SECRET?.trim();
+
+if (!jwtSecret || jwtSecret === 'change_this_secret_in_development') {
+  throw new Error(
+    'JWT_SECRET es obligatorio y debe ser una cadena larga y segura distinta del valor por defecto.'
+  );
+}
+
 export const env = {
   port: process.env.PORT || 4000,
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -15,7 +23,7 @@ export const env = {
     secretKey: process.env.RECAPTCHA_SECRET_KEY || '',
     minScore: Number(process.env.RECAPTCHA_MIN_SCORE || 0.5)
   },
-  jwtSecret: process.env.JWT_SECRET || 'change_this_secret_in_development',
+  jwtSecret,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   mail: {
     host: process.env.MAIL_HOST || '',
@@ -24,11 +32,14 @@ export const env = {
     pass: process.env.MAIL_PASS || '',
     from: process.env.MAIL_FROM || ''
   },
-  db: {
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'planifica_db'
+  databaseUrl: process.env.DATABASE_URL || '',
+  databaseSsl: process.env.DATABASE_SSL === 'true',
+  databaseSslRejectUnauthorized:
+    process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true',
+  databaseConnectionTimeout: Number(process.env.DATABASE_CONNECTION_TIMEOUT || 0),
+  databaseIdleTimeout: Number(process.env.DATABASE_IDLE_TIMEOUT || 10000),
+  groq: {
+    apiKey: process.env.GROQ_API_KEY || '',
+    model: process.env.GROQ_MODEL || 'llama-3.1-8b-instant'
   }
 };

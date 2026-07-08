@@ -7,6 +7,7 @@ import {
   buildCorsOptions
 } from './middleware/securityMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 
@@ -26,6 +27,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/appointments', appointmentRoutes);
 

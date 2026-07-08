@@ -1,15 +1,15 @@
 import { pool } from '../config/db.js';
 
 export async function listTasks(userId) {
-  const [rows] = await pool.query(
-    'SELECT * FROM tasks WHERE user_id = ? ORDER BY COALESCE(fecha, created_at) ASC, created_at DESC',
+  const { rows } = await pool.query(
+    'SELECT * FROM tasks WHERE user_id = $1 ORDER BY COALESCE(fecha, created_at::date) ASC, created_at DESC',
     [userId]
   );
   return rows;
 }
 
 export async function findTaskById(userId, id) {
-  const [rows] = await pool.query('SELECT * FROM tasks WHERE id = ? AND user_id = ?', [id, userId]);
+  const { rows } = await pool.query('SELECT * FROM tasks WHERE id = $1 AND user_id = $2', [id, userId]);
   return rows[0] || null;
 }
 
@@ -18,10 +18,11 @@ export async function createTask(userId, task) {
   const isFavorite = Boolean(task.is_favorite);
   const completedAt = estado === 'completada' ? new Date() : null;
 
-  const [result] = await pool.query(
+  const { rows } = await pool.query(
     `INSERT INTO tasks
      (user_id, titulo, descripcion, prioridad, estado, fecha, is_favorite, completed_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING id`,
     [
       userId,
       task.titulo,
@@ -33,7 +34,7 @@ export async function createTask(userId, task) {
       completedAt
     ]
   );
-  return findTaskById(userId, result.insertId);
+  return findTaskById(userId, rows[0].id);
 }
 
 export async function updateTask(userId, id, task) {
@@ -56,14 +57,14 @@ export async function updateTask(userId, id, task) {
 
   await pool.query(
     `UPDATE tasks
-     SET titulo = ?,
-         descripcion = ?,
-         prioridad = ?,
-         estado = ?,
-         fecha = ?,
-         is_favorite = ?,
-         completed_at = ?
-     WHERE id = ? AND user_id = ?`,
+     SET titulo = $1,
+         descripcion = $2,
+         prioridad = $3,
+         estado = $4,
+         fecha = $5,
+         is_favorite = $6,
+         completed_at = $7
+     WHERE id = $8 AND user_id = $9`,
     [
       nextTask.titulo,
       nextTask.descripcion || null,
@@ -80,6 +81,6 @@ export async function updateTask(userId, id, task) {
 }
 
 export async function deleteTask(userId, id) {
-  const [result] = await pool.query('DELETE FROM tasks WHERE id = ? AND user_id = ?', [id, userId]);
-  return result.affectedRows > 0;
+  const result = await pool.query('DELETE FROM tasks WHERE id = $1 AND user_id = $2', [id, userId]);
+  return result.rowCount > 0;
 }

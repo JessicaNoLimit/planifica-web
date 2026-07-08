@@ -6,6 +6,7 @@ import {
   updateAppointment
 } from '../api/appointments.js';
 import { createTask, deleteTask, fetchTasks, updateTask } from '../api/tasks.js';
+import { generateDailyPlan } from '../api/ai.js';
 import { updatePreferences } from '../api/auth.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import AppointmentPanel from '../components/AppointmentPanel.jsx';
@@ -111,6 +112,10 @@ export default function DashboardPage() {
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState(null);
   const [error, setError] = useState('');
+  const [aiPlan, setAiPlan] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
+  const [aiGeneratedAt, setAiGeneratedAt] = useState(null);
 
   const phrase = useMemo(() => phrases[Math.floor(Math.random() * phrases.length)], []);
 
@@ -311,6 +316,21 @@ export default function DashboardPage() {
     setUser(data.user);
   }
 
+  async function handleGenerateDailyPlan() {
+    setAiLoading(true);
+    setAiError('');
+
+    try {
+      const data = await generateDailyPlan();
+      setAiPlan(data);
+      setAiGeneratedAt(new Date());
+    } catch (err) {
+      setAiError(err.message || 'No se pudo generar el plan con IA.');
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   function renderActiveView() {
     if (activeView === 'tareas') {
       return (
@@ -358,6 +378,20 @@ export default function DashboardPage() {
 
     return <HomeView tasks={tasks} appointments={appointments} />;
   }
+
+  const isHomeView = activeView === 'inicio';
+  const formatGeneratedAt = (date) => {
+    if (!date) return '';
+
+    const pad = (value) => String(value).padStart(2, '0');
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1);
+    const year = date.getFullYear();
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+
+    return `Generado el ${day}/${month}/${year} a las ${hours}:${minutes}`;
+  };
 
   return (
     <main className="dashboard" style={{ '--accent': user.neon_color }}>
@@ -481,6 +515,75 @@ export default function DashboardPage() {
         </header>
 
         {error && <p className="error">{error}</p>}
+
+        {isHomeView && (
+          <section className="panel ai-panel">
+            <div className="ai-panel-header">
+              <div>
+                <h2>Planificar mi día con IA</h2>
+                <p className="muted">
+                  Genera un resumen breve, prioridades y orden recomendado con tus tareas y citas.
+                </p>
+              </div>
+              <button
+                className="primary-button ai-action-button"
+                type="button"
+                onClick={handleGenerateDailyPlan}
+                disabled={aiLoading}
+              >
+                {aiLoading ? 'Generando...' : '✨ Planificar mi día con IA'}
+              </button>
+            </div>
+
+            {aiError && <p className="error">{aiError}</p>}
+
+            {aiLoading && <p className="muted ai-loading">Analizando tareas y citas...</p>}
+
+            {aiPlan && !aiLoading && !aiError && (
+              <div className="ai-result">
+                {aiGeneratedAt && (
+                  <p className="ai-generated-at">{formatGeneratedAt(aiGeneratedAt)}</p>
+                )}
+
+                <div className="ai-result-block">
+                  <h3>Resumen</h3>
+                  <p>{aiPlan.summary}</p>
+                </div>
+
+                <div className="ai-result-block">
+                  <h3>Prioridad principal</h3>
+                  <p>{aiPlan.main_priority}</p>
+                </div>
+
+                <div className="ai-result-block">
+                  <h3>Orden recomendado</h3>
+                  <ol className="ai-list">
+                    {Array.isArray(aiPlan.work_order) &&
+                      aiPlan.work_order.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
+                  </ol>
+                </div>
+
+                <div className="ai-result-block">
+                  <h3>Advertencias</h3>
+                  {Array.isArray(aiPlan.warnings) && aiPlan.warnings.length > 0 ? (
+                    <ul className="ai-list">
+                      {aiPlan.warnings.map((item, index) => (
+                        <li key={`${item}-${index}`}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="muted">Sin advertencias destacables.</p>
+                  )}
+                </div>
+
+                <div className="ai-result-block ai-tip">
+                  <h3>Consejo</h3>
+                  <p>{aiPlan.motivational_tip}</p>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         {renderActiveView()}
       </section>
