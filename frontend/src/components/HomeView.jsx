@@ -13,7 +13,7 @@ export default function HomeView({ tasks, appointments }) {
   const nextAppointments = activeAppointments.slice(0, 3);
 
   return (
-    <div className="summary-grid">
+    <div className="summary-grid dashboard-home">
       <section className="panel summary-panel">
         <header className="panel-header">
           <h2>Tareas pendientes</h2>

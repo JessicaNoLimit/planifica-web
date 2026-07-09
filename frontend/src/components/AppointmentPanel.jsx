@@ -1,4 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  formatSpanishDateShort,
+  formatSpanishTime,
+  formatTaskStatus
+} from '../utils/formatters.js';
+import {
+  groupCalendarEventsByDate,
+  normalizeDateKey
+} from '../utils/calendarEvents.js';
 
 const WEEKDAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 const MONTH_LABELS = [
@@ -70,7 +79,7 @@ function formatDateKey(date) {
 }
 
 function compareAppointmentAsc(a, b) {
-  const dateDiff = String(a.fecha || '').localeCompare(String(b.fecha || ''));
+  const dateDiff = String(a.dateKey || a.fecha || '').localeCompare(String(b.dateKey || b.fecha || ''));
   if (dateDiff !== 0) return dateDiff;
   return String(a.hora || '').localeCompare(String(b.hora || ''));
 }
@@ -80,6 +89,7 @@ function compareAppointmentDesc(a, b) {
 }
 
 export default function AppointmentPanel({
+  tasks = [],
   appointments,
   editingAppointment,
   form,
@@ -98,24 +108,43 @@ export default function AppointmentPanel({
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
+  const [isMiniCalendarOpen, setIsMiniCalendarOpen] = useState(() => window.innerWidth >= 900);
 
   function updateField(event) {
     onFormChange((current) => ({ ...current, [event.target.name]: event.target.value }));
   }
 
-  const appointmentCountsByDay = useMemo(
+  useEffect(() => {
+    function syncMiniCalendarState() {
+      setIsMiniCalendarOpen(window.innerWidth >= 900);
+    }
+
+    syncMiniCalendarState();
+    window.addEventListener('resize', syncMiniCalendarState);
+    return () => window.removeEventListener('resize', syncMiniCalendarState);
+  }, []);
+
+  const eventSummaryByDay = useMemo(
+    () => groupCalendarEventsByDate(tasks, appointments),
+    [tasks, appointments]
+  );
+
+  const normalizedAppointments = useMemo(
     () =>
-      appointments.reduce((acc, appointment) => {
-        if (!appointment.fecha) return acc;
-        acc[appointment.fecha] = (acc[appointment.fecha] || 0) + 1;
-        return acc;
-      }, {}),
+      appointments.map((appointment) => ({
+        ...appointment,
+        dateKey: normalizeDateKey(appointment.fecha)
+      })),
     [appointments]
   );
 
   const groupedAppointments = useMemo(() => {
-    const activeAppointments = appointments.filter((appointment) => appointment.estado !== 'completada');
-    const archivedAppointments = appointments.filter((appointment) => appointment.estado === 'completada');
+    const activeAppointments = normalizedAppointments.filter(
+      (appointment) => appointment.estado !== 'completada'
+    );
+    const archivedAppointments = normalizedAppointments.filter(
+      (appointment) => appointment.estado === 'completada'
+    );
     const sortedAsc = [...activeAppointments].sort(compareAppointmentAsc);
     const sortedDesc = [...activeAppointments].sort(compareAppointmentDesc);
     const archivedDesc = [...archivedAppointments].sort((a, b) => {
@@ -128,13 +157,13 @@ export default function AppointmentPanel({
     });
 
     return {
-      proximas: sortedAsc.filter((appointment) => appointment.fecha >= todayKey),
-      hoy: sortedAsc.filter((appointment) => appointment.fecha === todayKey),
-      pasadas: sortedDesc.filter((appointment) => appointment.fecha < todayKey),
+      proximas: sortedAsc.filter((appointment) => appointment.dateKey >= todayKey),
+      hoy: sortedAsc.filter((appointment) => appointment.dateKey === todayKey),
+      pasadas: sortedDesc.filter((appointment) => appointment.dateKey < todayKey),
       todas: sortedAsc,
       archivo: archivedDesc
     };
-  }, [appointments, todayKey]);
+  }, [normalizedAppointments, todayKey]);
 
   const tabs = useMemo(
     () => [
@@ -150,7 +179,7 @@ export default function AppointmentPanel({
   const filteredAppointments = useMemo(() => {
     const activeAppointments = groupedAppointments[activeTab] || [];
     if (!selectedDate) return activeAppointments;
-    return activeAppointments.filter((appointment) => appointment.fecha === selectedDate);
+    return activeAppointments.filter((appointment) => appointment.dateKey === selectedDate);
   }, [activeTab, groupedAppointments, selectedDate]);
 
   const emptyMessages = {
@@ -219,69 +248,92 @@ export default function AppointmentPanel({
 
         <div className="appointment-layout">
           <aside className="appointment-sidebar">
-            <div className="appointment-mini-calendar">
-              <div className="appointment-mini-calendar-header">
-                <button
-                  aria-label="Mes anterior"
-                  className="calendar-nav-button"
-                  onClick={() => changeMonth(-1)}
-                  type="button"
-                >
-                  {'<'}
-                </button>
-                <strong>
-                  {MONTH_LABELS[calendarDate.getMonth()]} {calendarDate.getFullYear()}
-                </strong>
-                <button
-                  aria-label="Mes siguiente"
-                  className="calendar-nav-button"
-                  onClick={() => changeMonth(1)}
-                  type="button"
-                >
-                  {'>'}
-                </button>
+            <details
+              className="appointment-mini-calendar-disclosure"
+              open={isMiniCalendarOpen}
+              onToggle={(event) => setIsMiniCalendarOpen(event.currentTarget.open)}
+            >
+              <summary className="appointment-mini-calendar-summary">
+                Mini calendario
+                <span>{MONTH_LABELS[calendarDate.getMonth()]}</span>
+              </summary>
+
+              <div className="appointment-mini-calendar">
+                <div className="appointment-mini-calendar-header">
+                  <button
+                    aria-label="Mes anterior"
+                    className="calendar-nav-button"
+                    onClick={() => changeMonth(-1)}
+                    type="button"
+                  >
+                    {'<'}
+                  </button>
+                  <strong>
+                    {MONTH_LABELS[calendarDate.getMonth()]} {calendarDate.getFullYear()}
+                  </strong>
+                  <button
+                    aria-label="Mes siguiente"
+                    className="calendar-nav-button"
+                    onClick={() => changeMonth(1)}
+                    type="button"
+                  >
+                    {'>'}
+                  </button>
+                </div>
+
+                <div className="appointment-mini-calendar-grid">
+                  {WEEKDAY_LABELS.map((label) => (
+                    <div className="appointment-mini-weekday" key={label}>
+                      {label}
+                    </div>
+                  ))}
+
+                  {calendarDays.map((day) => {
+                    const summary = eventSummaryByDay[day.key] || null;
+                    const taskCount = summary?.taskCount || 0;
+                    const appointmentCount = summary?.appointmentCount || 0;
+                    const count = taskCount + appointmentCount;
+                    const isToday = day.key === todayKey;
+                    const isSelected = day.key === selectedDate;
+
+                    return (
+                      <button
+                        className={[
+                          'appointment-mini-day',
+                          day.isCurrentMonth ? 'is-current-month' : 'is-outside-month',
+                          isToday ? 'is-today' : '',
+                          isSelected ? 'is-selected' : '',
+                          count ? 'has-appointments' : ''
+                        ]
+                          .filter(Boolean)
+                          .join(' ')}
+                        key={day.key}
+                        onClick={() => setSelectedDate(day.key)}
+                        type="button"
+                      >
+                        <span>{day.dayNumber}</span>
+                        {count > 0 && (
+                          <div className="calendar-dot-row" aria-hidden="true">
+                            {taskCount > 0 && <span className="calendar-dot is-task" />}
+                            {appointmentCount > 0 && <span className="calendar-dot is-appointment" />}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {selectedDate && (
+                  <button
+                    className="link-button appointment-clear-filter"
+                    onClick={() => setSelectedDate('')}
+                    type="button"
+                  >
+                    Limpiar seleccion
+                  </button>
+                )}
               </div>
-
-              <div className="appointment-mini-calendar-grid">
-                {WEEKDAY_LABELS.map((label) => (
-                  <div className="appointment-mini-weekday" key={label}>
-                    {label}
-                  </div>
-                ))}
-
-                {calendarDays.map((day) => {
-                  const count = appointmentCountsByDay[day.key] || 0;
-                  const isToday = day.key === todayKey;
-                  const isSelected = day.key === selectedDate;
-
-                  return (
-                    <button
-                      className={[
-                        'appointment-mini-day',
-                        day.isCurrentMonth ? 'is-current-month' : 'is-outside-month',
-                        isToday ? 'is-today' : '',
-                        isSelected ? 'is-selected' : '',
-                        count ? 'has-appointments' : ''
-                      ]
-                        .filter(Boolean)
-                        .join(' ')}
-                      key={day.key}
-                      onClick={() => setSelectedDate(day.key)}
-                      type="button"
-                    >
-                      <span>{day.dayNumber}</span>
-                      {count > 0 && <i aria-hidden="true" className="appointment-mini-dot" />}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {selectedDate && (
-                <button className="link-button appointment-clear-filter" onClick={() => setSelectedDate('')} type="button">
-                  Limpiar seleccion
-                </button>
-              )}
-            </div>
+            </details>
           </aside>
 
           <div className="appointment-agenda">
@@ -321,15 +373,24 @@ export default function AppointmentPanel({
                   <div>
                     <div className="appointment-title-row">
                       <h3>{appointment.titulo}</h3>
-                      <small className="appointment-time-badge">{appointment.hora}</small>
+                      <small className="appointment-time-badge">
+                        {formatSpanishTime(appointment.hora)}
+                      </small>
                     </div>
                     {appointment.descripcion && <p>{appointment.descripcion}</p>}
                     <div className="task-meta-row">
-                      <small className="appointment-date-badge">{appointment.fecha}</small>
-                      <small>{appointment.hora}</small>
+                      <small className="appointment-date-badge">
+                        {formatSpanishDateShort(appointment.fecha)}
+                      </small>
+                      <small className="appointment-time-text">
+                        {formatSpanishTime(appointment.hora)}
+                      </small>
+                      <small className="appointment-status-badge">
+                        {formatTaskStatus(appointment.estado)}
+                      </small>
                       {appointment.completed_at && (
                         <small className="appointment-completed-badge">
-                          Completada el {appointment.completed_at}
+                          Completada
                         </small>
                       )}
                     </div>

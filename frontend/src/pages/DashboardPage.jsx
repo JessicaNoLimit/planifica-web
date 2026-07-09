@@ -93,6 +93,7 @@ function capitalizeNameStart(value) {
 export default function DashboardPage() {
   const { user, setUser, logout } = useAuth();
   const [activeView, setActiveView] = useState('inicio');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
@@ -122,6 +123,34 @@ export default function DashboardPage() {
   useEffect(() => {
     loadWorkspace();
   }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    }
+
+    function handleResize() {
+      if (window.innerWidth >= 900) {
+        setMobileMenuOpen(false);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [mobileMenuOpen]);
 
   function resetTaskForm() {
     setTaskForm({
@@ -316,6 +345,16 @@ export default function DashboardPage() {
     setUser(data.user);
   }
 
+  function handleSelectView(view) {
+    setActiveView(view);
+    setMobileMenuOpen(false);
+  }
+
+  function handleLogout() {
+    setMobileMenuOpen(false);
+    logout();
+  }
+
   async function handleGenerateDailyPlan() {
     setAiLoading(true);
     setAiError('');
@@ -399,7 +438,7 @@ export default function DashboardPage() {
         <button
           className={`brand-button ${activeView === 'inicio' ? 'is-active' : ''}`}
           type="button"
-          onClick={() => setActiveView('inicio')}
+          onClick={() => handleSelectView('inicio')}
           aria-label="Ir a Inicio"
         >
           <LogoPlanifica className="brand-logo" />
@@ -412,28 +451,28 @@ export default function DashboardPage() {
           <button
             className={activeView === 'inicio' ? 'is-active' : ''}
             type="button"
-            onClick={() => setActiveView('inicio')}
+            onClick={() => handleSelectView('inicio')}
           >
             Inicio
           </button>
           <button
             className={activeView === 'tareas' ? 'is-active' : ''}
             type="button"
-            onClick={() => setActiveView('tareas')}
+            onClick={() => handleSelectView('tareas')}
           >
             Tareas
           </button>
           <button
             className={activeView === 'calendario' ? 'is-active' : ''}
             type="button"
-            onClick={() => setActiveView('calendario')}
+            onClick={() => handleSelectView('calendario')}
           >
             Calendario
           </button>
           <button
             className={activeView === 'citas' ? 'is-active' : ''}
             type="button"
-            onClick={() => setActiveView('citas')}
+            onClick={() => handleSelectView('citas')}
           >
             Citas
           </button>
@@ -453,16 +492,31 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
-        <button className="secondary-button" type="button" onClick={logout}>
+        <button className="secondary-button" type="button" onClick={handleLogout}>
           Salir
         </button>
       </aside>
 
       <section className="workspace">
         <header className="dashboard-header">
-          <div>
-            <h1 className="dashboard-title">Hola, {capitalizeNameStart(user.nombre)}</h1>
-            <p className="dashboard-subtitle">{phrase}</p>
+          <div className="dashboard-header-content">
+            <div>
+              <h1 className="dashboard-title">Hola, {capitalizeNameStart(user.nombre)}</h1>
+              <p className="dashboard-subtitle">{phrase}</p>
+            </div>
+
+            <button
+              aria-controls="dashboard-mobile-drawer"
+              aria-expanded={mobileMenuOpen}
+              aria-label="Abrir navegación"
+              className="dashboard-mobile-toggle"
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
           </div>
           <div className="dashboard-header-logo" aria-hidden="true">
             <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
@@ -587,6 +641,98 @@ export default function DashboardPage() {
 
         {renderActiveView()}
       </section>
+
+      {mobileMenuOpen && (
+        <div
+          className="dashboard-drawer-overlay"
+          onClick={() => setMobileMenuOpen(false)}
+          role="presentation"
+        >
+          <aside
+            aria-label="Navegación del dashboard"
+            aria-modal="true"
+            className="sidebar dashboard-drawer"
+            id="dashboard-mobile-drawer"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+          >
+            <div className="dashboard-drawer-header">
+              <button
+                className="brand-button"
+                type="button"
+                onClick={() => handleSelectView('inicio')}
+                aria-label="Ir a Inicio"
+              >
+                <LogoPlanifica className="brand-logo" />
+                <span>
+                  <strong>Planifica</strong>
+                  <small>Escritorio</small>
+                </span>
+              </button>
+
+              <button
+                className="dashboard-drawer-close"
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Cerrar navegación"
+              >
+                ×
+              </button>
+            </div>
+
+            <nav aria-label="Vistas">
+              <button
+                className={activeView === 'inicio' ? 'is-active' : ''}
+                type="button"
+                onClick={() => handleSelectView('inicio')}
+              >
+                Inicio
+              </button>
+              <button
+                className={activeView === 'tareas' ? 'is-active' : ''}
+                type="button"
+                onClick={() => handleSelectView('tareas')}
+              >
+                Tareas
+              </button>
+              <button
+                className={activeView === 'calendario' ? 'is-active' : ''}
+                type="button"
+                onClick={() => handleSelectView('calendario')}
+              >
+                Calendario
+              </button>
+              <button
+                className={activeView === 'citas' ? 'is-active' : ''}
+                type="button"
+                onClick={() => handleSelectView('citas')}
+              >
+                Citas
+              </button>
+            </nav>
+
+            <div className="color-control">
+              <span>Neon</span>
+              <div className="color-palette" aria-label="Seleccionar color neon">
+                {neonPalette.map((color) => (
+                  <button
+                    aria-label={`Usar color ${color}`}
+                    className={user.neon_color.toUpperCase() === color ? 'is-selected' : ''}
+                    key={color}
+                    onClick={() => handleNeonChange(color)}
+                    style={{ '--swatch': color }}
+                    type="button"
+                  />
+                ))}
+              </div>
+            </div>
+
+            <button className="secondary-button" type="button" onClick={handleLogout}>
+              Salir
+            </button>
+          </aside>
+        </div>
+      )}
 
       <ConfirmModal
         cancelText="Cancelar"
