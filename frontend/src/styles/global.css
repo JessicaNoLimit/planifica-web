@@ -804,6 +804,14 @@ textarea:focus {
   margin-bottom: 26px;
 }
 
+.dashboard-header-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
 .dashboard-header::before {
   position: absolute;
   top: -24px;
@@ -889,6 +897,86 @@ textarea:focus {
 .dashboard-header-logo svg {
   width: 100%;
   height: 100%;
+}
+
+.dashboard-mobile-toggle {
+  display: none;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--accent, #00f5ff) 18%, rgba(255, 255, 255, 0.12));
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent, #00f5ff) 10%, transparent), transparent 58%),
+    rgba(17, 20, 29, 0.88);
+  padding: 0;
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--accent, #00f5ff) 12%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-mobile-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent, #00f5ff);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent, #00f5ff) 30%, transparent);
+}
+
+.dashboard-mobile-toggle span + span {
+  margin-top: 4px;
+}
+
+.dashboard-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(3, 3, 5, 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.dashboard-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 61;
+  width: min(84vw, 320px);
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid color-mix(in srgb, var(--accent, #00f5ff) 18%, rgba(255, 255, 255, 0.08));
+  border-radius: 0;
+  box-shadow: 24px 0 56px rgba(0, 0, 0, 0.34);
+}
+
+.dashboard-drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-drawer-header .brand-button {
+  flex: 1 1 auto;
+}
+
+.dashboard-drawer-close {
+  display: grid;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(17, 20, 29, 0.72);
+  color: #f4f7fb;
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1612,6 +1700,38 @@ textarea:focus {
   padding: 14px;
 }
 
+.appointment-mini-calendar-disclosure {
+  display: grid;
+  gap: 12px;
+}
+
+.appointment-mini-calendar-disclosure > summary {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent, #00f5ff) 14%, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--accent, #00f5ff) 7%, transparent), transparent 42%),
+    rgba(8, 10, 16, 0.74);
+  padding: 12px 14px;
+  color: #f4f7fb;
+  font-weight: 700;
+  list-style: none;
+  cursor: pointer;
+}
+
+.appointment-mini-calendar-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.appointment-mini-calendar-disclosure > summary span {
+  color: #8f97a6;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .appointment-mini-calendar-header {
   display: flex;
   align-items: center;
@@ -1976,8 +2096,26 @@ textarea:focus {
   }
 
   .sidebar {
-    position: static;
-    height: auto;
+    display: none;
+  }
+
+  .dashboard-mobile-toggle {
+    display: inline-flex;
+  }
+
+  .dashboard-header {
+    align-items: flex-start;
+  }
+
+  .dashboard-header-content {
+    align-items: flex-start;
+  }
+
+  .dashboard-drawer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 22px 18px;
   }
 
   .workspace-grid {
@@ -1990,6 +2128,38 @@ textarea:focus {
 
   .stacked-panels {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-home {
+    gap: 16px;
+  }
+
+  .dashboard-home .summary-panel {
+    min-height: 0;
+  }
+
+  .dashboard-home .panel-header {
+    margin-bottom: 14px;
+  }
+
+  .dashboard-home .item-list {
+    margin-top: 14px;
+    gap: 10px;
+  }
+
+  .dashboard-home .summary-item {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .dashboard-home .summary-item strong {
+    font-size: 0.96rem;
+    line-height: 1.35;
+  }
+
+  .dashboard-home .summary-meta-row,
+  .dashboard-home .summary-appointment-meta {
+    gap: 6px;
   }
 
   .calendar-grid {
@@ -2017,12 +2187,96 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .task-tabs {
+    gap: 8px;
+  }
+
+  .task-tabs button {
+    min-height: 44px;
+  }
+
+  .task-toolbar input,
+  .task-toolbar select,
+  .compact-form input,
+  .compact-form select,
+  .compact-form textarea {
+    min-height: 44px;
+  }
+
+  .task-form-actions,
+  .appointment-form-actions,
+  .item-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .task-form-actions button,
+  .appointment-form-actions button,
+  .item-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .favorite-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .task-title-row {
+    min-height: 40px;
+  }
+
   .appointment-layout {
     grid-template-columns: 1fr;
   }
 
   .appointment-sidebar {
     position: static;
+  }
+
+  .appointment-mini-calendar-disclosure > summary {
+    display: flex;
+  }
+
+  .appointment-mini-calendar-disclosure[open] > summary {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .appointment-mini-calendar-disclosure[open] .appointment-mini-calendar {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .appointment-mini-calendar {
+    padding: 12px;
+  }
+
+  .appointment-mini-calendar-grid {
+    gap: 5px;
+  }
+
+  .appointment-mini-day {
+    min-height: 34px;
+  }
+
+  .appointment-clear-filter {
+    margin-top: 12px;
+  }
+
+  .appointment-agenda .item-list.compact {
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .appointment-filter-state {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .appointment-title-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .calendar-detail-grid {
@@ -2072,28 +2326,92 @@ textarea:focus {
     display: grid;
   }
 
+  .dashboard .ai-panel {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .dashboard .ai-panel-header {
+    gap: 12px;
+  }
+
+  .dashboard .ai-panel-header h2 {
+    font-size: 1.05rem;
+  }
+
+  .dashboard .ai-panel-header .muted {
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .dashboard .ai-action-button {
+    min-height: 44px;
+  }
+
+  .dashboard .ai-result {
+    gap: 8px;
+  }
+
+  .dashboard .ai-result-block {
+    padding: 10px 11px;
+  }
+
+  .dashboard .ai-result-block h3 {
+    margin-bottom: 4px;
+  }
+
+  .dashboard .ai-result-block p,
+  .dashboard .ai-result-block li {
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .dashboard .ai-generated-at {
+    font-size: 0.7rem;
+  }
+
+  .dashboard-home {
+    gap: 14px;
+  }
+
+  .dashboard-home .summary-panel {
+    padding: 16px;
+  }
+
+  .dashboard-home .panel-header {
+    margin-bottom: 12px;
+  }
+
+  .dashboard-home .panel-header h2 {
+    font-size: 1.02rem;
+  }
+
+  .dashboard-home .panel-header span {
+    min-width: 30px;
+    height: 30px;
+  }
+
+  .dashboard-home .summary-item {
+    padding: 11px 12px;
+  }
+
+  .dashboard-home .summary-item strong {
+    font-size: 0.94rem;
+  }
+
+  .dashboard-home .summary-meta-row,
+  .dashboard-home .summary-appointment-meta {
+    gap: 5px;
+  }
+
+  .dashboard-home .calendar-panel-compact {
+    display: none;
+  }
+
   .calendar-panel-header,
   .calendar-summary-row {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .appointment-filter-state,
-  .appointment-title-row {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .appointment-mini-calendar {
-    padding: 12px;
-  }
-
-  .appointment-mini-calendar-grid {
-    gap: 5px;
-  }
-
-  .appointment-mini-day {
-    min-height: 34px;
   }
 
   .calendar-toolbar {
