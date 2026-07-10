@@ -15,8 +15,7 @@ export default function AuthPage({ mode, onModeChange }) {
   const [form, setForm] = useState({
     nombre: '',
     email: '',
-    password: '',
-    neon_color: '#00f5ff'
+    password: ''
   });
   const [error, setError] = useState('');
   const [registrationSuccess, setRegistrationSuccess] = useState('');
@@ -80,8 +79,7 @@ export default function AuthPage({ mode, onModeChange }) {
         setForm({
           nombre: '',
           email: '',
-          password: '',
-          neon_color: '#00f5ff'
+          password: ''
         });
       } else {
         await login({
@@ -229,18 +227,6 @@ export default function AuthPage({ mode, onModeChange }) {
                     >
                       ¿Has olvidado tu contraseña?
                     </button>
-                  )}
-
-                  {isRegister && (
-                    <label>
-                      Color neon
-                      <input
-                        name="neon_color"
-                        type="color"
-                        value={form.neon_color}
-                        onChange={updateField}
-                      />
-                    </label>
                   )}
 
                   {error && <p className="error">{error}</p>}
