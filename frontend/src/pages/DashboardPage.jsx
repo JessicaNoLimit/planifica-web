@@ -400,6 +400,7 @@ export default function DashboardPage() {
       return (
         <div className="single-view">
           <AppointmentPanel
+            tasks={tasks}
             appointments={appointments}
             editingAppointment={editingAppointment}
             form={appointmentForm}

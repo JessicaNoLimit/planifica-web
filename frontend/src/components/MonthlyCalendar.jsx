@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { normalizeDateKey } from '../utils/calendarEvents.js';
 
 const WEEKDAY_LABELS = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
 const MONTH_LABELS = [
@@ -111,7 +112,7 @@ function normalizeEvents(tasks, appointments) {
     .filter((task) => task.fecha)
     .map((task) => ({
       id: `task-${task.id}`,
-      dateKey: task.fecha,
+      dateKey: normalizeDateKey(task.fecha),
       type: 'task',
       title: task.titulo,
       meta: 'Tarea',
@@ -127,7 +128,7 @@ function normalizeEvents(tasks, appointments) {
     .filter((appointment) => appointment.fecha && appointment.estado !== 'completada')
     .map((appointment) => ({
       id: `appointment-${appointment.id}`,
-      dateKey: appointment.fecha,
+      dateKey: normalizeDateKey(appointment.fecha),
       type: 'appointment',
       title: appointment.titulo,
       meta: appointment.hora ? `${appointment.hora}` : 'Cita',
