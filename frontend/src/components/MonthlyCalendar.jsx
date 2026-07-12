@@ -1,4 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  formatSpanishDateLong,
+  formatSpanishDateTime,
+  formatSpanishTime
+} from '../utils/formatters.js';
 import { normalizeDateKey } from '../utils/calendarEvents.js';
 
 const WEEKDAY_LABELS = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
@@ -17,21 +22,10 @@ const MONTH_LABELS = [
   'Diciembre'
 ];
 
-function parseDateParts(value) {
-  if (!value) return null;
-  const [year, month, day] = value.split('-').map(Number);
-  if (!year || !month || !day) return null;
-  return { year, monthIndex: month - 1, day };
-}
-
 function toDateKey(year, monthIndex, day) {
   const month = `${monthIndex + 1}`.padStart(2, '0');
   const paddedDay = `${day}`.padStart(2, '0');
   return `${year}-${month}-${paddedDay}`;
-}
-
-function isSameMonth(year, monthIndex, date) {
-  return date.year === year && date.monthIndex === monthIndex;
 }
 
 function addDays(date, amount) {
@@ -47,12 +41,6 @@ function startOfWeek(date) {
 
 function formatShortDate(date) {
   return `${date.getDate()} ${MONTH_LABELS[date.getMonth()].slice(0, 3)}`;
-}
-
-function formatLongDate(dateKey) {
-  const parts = parseDateParts(dateKey);
-  if (!parts) return dateKey;
-  return `${parts.day} de ${MONTH_LABELS[parts.monthIndex]} de ${parts.year}`;
 }
 
 function buildCalendarDays(year, monthIndex) {
@@ -131,7 +119,7 @@ function normalizeEvents(tasks, appointments) {
       dateKey: normalizeDateKey(appointment.fecha),
       type: 'appointment',
       title: appointment.titulo,
-      meta: appointment.hora ? `${appointment.hora}` : 'Cita',
+      meta: appointment.hora ? formatSpanishTime(appointment.hora) : 'Cita',
       time: appointment.hora,
       description: appointment.descripcion,
       status: appointment.estado,
@@ -172,8 +160,10 @@ export default function MonthlyCalendar({ tasks, appointments, compact = false }
   const monthEventsCount = useMemo(
     () =>
       allEvents.filter((event) => {
-        const date = parseDateParts(event.dateKey);
-        return date && isSameMonth(year, monthIndex, date);
+        const [eventYear, eventMonth] = String(event.dateKey || '')
+          .split('-')
+          .map(Number);
+        return eventYear === year && eventMonth - 1 === monthIndex;
       }).length,
     [allEvents, monthIndex, year]
   );
@@ -396,7 +386,7 @@ export default function MonthlyCalendar({ tasks, appointments, compact = false }
             <header className="calendar-modal-header">
               <div>
                 <h3>Detalle del dia</h3>
-                <p className="muted">{formatLongDate(selectedDateKey)}</p>
+                <p className="muted">{formatSpanishDateLong(selectedDateKey)}</p>
               </div>
               <button className="secondary-button" onClick={closeDayDetail} type="button">
                 Cerrar
@@ -476,7 +466,7 @@ export default function MonthlyCalendar({ tasks, appointments, compact = false }
             <header className="calendar-modal-header">
               <div>
                 <h3>{selectedCalendarItem.type === 'task' ? 'Detalle de tarea' : 'Detalle de cita'}</h3>
-                <p className="muted">{formatLongDate(selectedCalendarItem.dateKey)}</p>
+                <p className="muted">{formatSpanishDateLong(selectedCalendarItem.dateKey)}</p>
               </div>
               <button
                 className="secondary-button"
@@ -499,21 +489,21 @@ export default function MonthlyCalendar({ tasks, appointments, compact = false }
                       <span>
                         Fecha:{' '}
                         {selectedCalendarItem.dateKey
-                          ? formatLongDate(selectedCalendarItem.dateKey)
+                          ? formatSpanishDateLong(selectedCalendarItem.dateKey)
                           : 'Tarea sin fecha'}
                       </span>
                       <span>Destacada: {selectedCalendarItem.isFavorite ? 'Si' : 'No'}</span>
                       {selectedCalendarItem.completedAt && (
-                        <span>Completada: {selectedCalendarItem.completedAt}</span>
+                        <span>Completada: {formatSpanishDateTime(selectedCalendarItem.completedAt)}</span>
                       )}
                     </>
                   ) : (
                     <>
-                      <span>Fecha: {formatLongDate(selectedCalendarItem.dateKey)}</span>
-                      <span>Hora: {selectedCalendarItem.time || 'Sin hora'}</span>
+                      <span>Fecha: {formatSpanishDateLong(selectedCalendarItem.dateKey)}</span>
+                      <span>Hora: {formatSpanishTime(selectedCalendarItem.time) || 'Sin hora'}</span>
                       <span>Estado: {selectedCalendarItem.status || 'Programada'}</span>
                       {selectedCalendarItem.completedAt && (
-                        <span>Completada: {selectedCalendarItem.completedAt}</span>
+                        <span>Completada: {formatSpanishDateTime(selectedCalendarItem.completedAt)}</span>
                       )}
                     </>
                   )}

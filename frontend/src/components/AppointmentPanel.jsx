@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   formatSpanishDateShort,
-  formatSpanishTime,
+  formatSpanishDateTime,
   formatTaskStatus
 } from '../utils/formatters.js';
 import {
@@ -354,7 +354,7 @@ export default function AppointmentPanel({
 
             {selectedDate && (
               <div className="appointment-filter-state">
-                <span>Filtrando por {selectedDate}</span>
+                <span>Filtrando por {formatSpanishDateShort(selectedDate)}</span>
                 <button type="button" onClick={() => setSelectedDate('')}>
                   Quitar filtro
                 </button>
@@ -374,17 +374,11 @@ export default function AppointmentPanel({
                     <div className="appointment-title-row">
                       <h3>{appointment.titulo}</h3>
                       <small className="appointment-time-badge">
-                        {formatSpanishTime(appointment.hora)}
+                        {formatSpanishDateTime(appointment.fecha, appointment.hora)}
                       </small>
                     </div>
                     {appointment.descripcion && <p>{appointment.descripcion}</p>}
                     <div className="task-meta-row">
-                      <small className="appointment-date-badge">
-                        {formatSpanishDateShort(appointment.fecha)}
-                      </small>
-                      <small className="appointment-time-text">
-                        {formatSpanishTime(appointment.hora)}
-                      </small>
                       <small className="appointment-status-badge">
                         {formatTaskStatus(appointment.estado)}
                       </small>

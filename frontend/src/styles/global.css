@@ -1684,6 +1684,7 @@ textarea:focus {
   grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.4fr);
   gap: 20px;
   align-items: start;
+  min-width: 0;
 }
 
 .appointment-sidebar {
@@ -1809,6 +1810,11 @@ textarea:focus {
 
 .appointment-agenda {
   min-width: 0;
+  overflow: hidden;
+}
+
+.appointment-agenda .item-list.compact {
+  min-width: 0;
 }
 
 .task-form-actions,
@@ -1847,6 +1853,13 @@ textarea:focus {
 
 .appointment-item {
   align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+}
+
+.appointment-item > div:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .appointment-item.is-archived {
@@ -1858,10 +1871,15 @@ textarea:focus {
   align-items: center;
   gap: 10px;
   margin-bottom: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .appointment-title-row h3 {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .appointment-time-badge,
@@ -1877,6 +1895,7 @@ textarea:focus {
   color: #f4f7fb;
   background: rgba(139, 94, 60, 0.2);
   box-shadow: 0 0 10px rgba(139, 94, 60, 0.16);
+  max-width: 100%;
 }
 
 .appointment-date-badge {
@@ -1887,6 +1906,37 @@ textarea:focus {
 .appointment-completed-badge {
   color: #aeb6c4;
   background: rgba(255, 255, 255, 0.05);
+}
+
+.appointment-item .item-actions {
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 100%;
+}
+
+.appointment-item .item-actions button {
+  max-width: 100%;
+}
+
+@media (max-width: 1220px) and (min-width: 901px) {
+  .appointment-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .appointment-item > div:first-child {
+    width: 100%;
+  }
+
+  .appointment-title-row {
+    align-items: flex-start;
+  }
+
+  .appointment-item .item-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 .form-row {

@@ -1,4 +1,5 @@
 import MonthlyCalendar from './MonthlyCalendar.jsx';
+import { formatSpanishDateShort, formatSpanishDateTime } from '../utils/formatters.js';
 
 export default function HomeView({ tasks, appointments }) {
   const allPendingTasks = tasks.filter((task) => task.estado !== 'completada');
@@ -26,7 +27,7 @@ export default function HomeView({ tasks, appointments }) {
               <strong>{task.titulo}</strong>
               <small>
                 {task.prioridad} - {task.estado}
-                {task.fecha ? ` - ${task.fecha}` : ''}
+                {task.fecha ? ` - ${formatSpanishDateShort(task.fecha)}` : ''}
               </small>
             </article>
           ))}
@@ -44,7 +45,7 @@ export default function HomeView({ tasks, appointments }) {
             <article className="summary-item" key={appointment.id}>
               <strong>{appointment.titulo}</strong>
               <small>
-                {appointment.fecha} - {appointment.hora}
+                {formatSpanishDateTime(appointment.fecha, appointment.hora)}
               </small>
             </article>
           ))}
