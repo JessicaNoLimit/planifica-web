@@ -6,20 +6,47 @@ Aplicación Full Stack de productividad desarrollada con React, Node.js, Express
 
 Incluye un asistente de Inteligencia Artificial que analiza el contexto del usuario y genera un enfoque breve del día para ayudar a priorizar lo realmente importante.
 
+🌐 **Demo online:** https://planifica-web.vercel.app
+
+🧪 Credenciales de prueba
+
+Para facilitar la evaluación del proyecto, se incluye una cuenta de demostración con acceso a todas las funcionalidades de la aplicación.
+
+**Usuario**
+
+```text
+locademanicomio@gmail.com
+```
+
+**Contraseña**
+
+```text
+123456789
+```
+
+Con esta cuenta es posible probar:
+
+- Gestión de tareas.
+- Gestión de citas.
+- Calendario.
+- Asistente de IA "Mi enfoque de hoy".
+- Personalización de la interfaz.
+
+
 **Stack tecnológico:** React · Vite · Node.js · Express · PostgreSQL · JWT · Groq AI
 
 ## Información
 
-| Campo | Detalle |
-|---|---|
-| Tipo | Aplicación Full Stack |
-| Estado | Proyecto entregado |
-| Frontend | React + Vite |
-| Backend | Node.js + Express |
-| Base de datos | PostgreSQL |
-| IA | Groq API |
-| Responsive | Sí |
-| Uso | Proyecto final del Máster de Programación e Inteligencia Artificial |
+| Campo         | Detalle                                                             |
+| ------------- | ------------------------------------------------------------------- |
+| Tipo          | Aplicación Full Stack                                               |
+| Estado        | Proyecto entregado                                                  |
+| Frontend      | React + Vite                                                        |
+| Backend       | Node.js + Express                                                   |
+| Base de datos | PostgreSQL                                                          |
+| IA            | Groq API                                                            |
+| Responsive    | Sí                                                                  |
+| Uso           | Proyecto final del Máster de Programación e Inteligencia Artificial |
 
 ## Índice
 
@@ -61,6 +88,8 @@ Hoy en día es habitual usar una app para tareas, otra para calendario y otra pa
 La idea es reducir la fricción diaria, evitar duplicar información entre herramientas y ofrecer una experiencia más clara para organizar el trabajo personal desde un solo lugar.
 
 ## Capturas
+
+A continuación se muestran algunas de las pantallas principales de la aplicación.
 
 ### Inicio de sesión
 
@@ -136,6 +165,7 @@ Asistente de IA integrado para generar un enfoque breve del día a partir del co
 La funcionalidad "Mi enfoque de hoy" no consiste en un chatbot genérico, sino en un asistente contextual integrado que analiza la información del usuario autenticado para generar recomendaciones personalizadas orientadas a mejorar su planificación diaria.
 
 Qué hace:
+
 - Lee las tareas y citas guardadas del usuario autenticado en PostgreSQL.
 - Resume el estado general del día.
 - Propone una prioridad principal.
@@ -144,6 +174,7 @@ Qué hace:
 - Añade un consejo breve para empezar el día con foco.
 
 Cómo funciona:
+
 - La petición sale desde el backend.
 - El backend llama a Groq API.
 - La clave `GROQ_API_KEY` nunca se expone en el frontend.
@@ -161,6 +192,7 @@ PLANIFICA/
     src/
   database/
     supabase_schema.sql
+  docs/
 ```
 
 - `frontend/`: interfaz de usuario, dashboard, formularios y vistas.
@@ -169,23 +201,24 @@ PLANIFICA/
 
 ## Tecnologías utilizadas
 
-| Área | Tecnologías |
-|---|---|
-| Frontend | React · Vite · CSS |
-| Backend | Node.js · Express |
-| Base de datos | PostgreSQL · Supabase |
+| Área          | Tecnologías                  |
+| ------------- | ---------------------------- |
+| Frontend      | React · Vite · CSS           |
+| Backend       | Node.js · Express            |
+| Base de datos | PostgreSQL · Supabase        |
 | Autenticación | JWT · verificación por email |
-| IA | Groq API |
-| Seguridad | Helmet · CORS · reCAPTCHA |
-| Email | Nodemailer / SMTP |
+| IA            | Groq API                     |
+| Seguridad     | Helmet · CORS · reCAPTCHA    |
+| Email         | Nodemailer / SMTP            |
 
 ## Despliegue
 
-Los enlaces definitivos se añadirán cuando la aplicación esté publicada.
+La aplicación se encuentra publicada y puede probarse desde los siguientes enlaces:
 
-- Demo online: pendiente de añadir
-- Backend/API: pendiente de añadir
-- Repositorio: pendiente de añadir
+- **Aplicación (Frontend):** https://planifica-web.vercel.app
+- **API (Backend):** https://planifica-api.onrender.com
+- **Health Check:** https://planifica-api.onrender.com/api/health
+
 
 ## Variables de entorno
 
@@ -375,22 +408,30 @@ Planifica nace con un objetivo claro: crear una aplicación funcional, mantenibl
 
 ## Enlaces
 
-- Repositorio: pendiente de completar con URL final
-- Demo online: pendiente de despliegue
+Repositorio:
+https://github.com/JessicaNoLimit/planifica-web
+
+Aplicación:
+https://planifica-web.vercel.app
+
+API:
+https://planifica-api.onrender.com
 
 Planifica representa la aplicación práctica de conocimientos de desarrollo Full Stack, arquitectura cliente-servidor, autenticación segura, integración de APIs e Inteligencia Artificial, con el objetivo de construir una solución útil, mantenible y preparada para evolucionar.
 
 ## Autora
 
-Desarrollado por **Jésica Serrano** como proyecto final del Máster de Programación e Inteligencia Artificial de Jobie FP.
+Desarrollado por **Jesica Serrano** como proyecto final del Máster de Programación e Inteligencia Artificial de Jobie FP.
 
 Si este proyecto te resulta útil o te inspira para aprender, me alegrará saberlo.
 
 ## Contribuciones
 
 Planifica es un proyecto abierto a mejoras.  
-Si encuentras un error o tienes una idea para mejorarlo, puedes abrir una Issue o proponer un Pull Request.
+Aunque actualmente el desarrollo está finalizado, cualquier sugerencia o mejora será bienvenida mediante Issues o Pull Requests.
 
 ## Licencia
 
-Este proyecto se publicará como open source bajo licencia MIT antes de su versión final.
+## Licencia
+
+Este proyecto se distribuye bajo la licencia MIT.
