@@ -1,3 +1,5 @@
+import { formatSpanishTime } from './formatters.js';
+
 function normalizeDateKey(value) {
   if (!value || typeof value !== 'string') return '';
   const match = value.match(/^(\d{4}-\d{2}-\d{2})/);
@@ -49,7 +51,7 @@ function buildAppointmentEvent(appointment) {
     dateKey,
     type: 'appointment',
     title: appointment.titulo,
-    meta: appointment.hora ? `${appointment.hora}` : 'Cita',
+    meta: appointment.hora ? formatSpanishTime(appointment.hora) : 'Cita',
     time: appointment.hora || '',
     description: appointment.descripcion,
     status: appointment.estado,

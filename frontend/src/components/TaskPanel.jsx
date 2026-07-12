@@ -1,4 +1,5 @@
 import StarIcon from './StarIcon.jsx';
+import { formatSpanishDateShort, formatSpanishDateTime } from '../utils/formatters.js';
 
 export default function TaskPanel({
   activeFilter,
@@ -146,8 +147,10 @@ export default function TaskPanel({
                 <div className="task-meta-row">
                   <small className={`task-priority-badge is-${task.prioridad}`}>{task.prioridad}</small>
                   <small>{task.estado}</small>
-                  <small>{task.fecha ? task.fecha : 'Sin fecha limite'}</small>
-                  {task.completed_at && <small>completada: {task.completed_at}</small>}
+                  <small>{task.fecha ? formatSpanishDateShort(task.fecha) : 'Sin fecha limite'}</small>
+                  {task.completed_at && (
+                    <small>completada: {formatSpanishDateTime(task.completed_at)}</small>
+                  )}
                 </div>
               </div>
               <div className="item-actions">

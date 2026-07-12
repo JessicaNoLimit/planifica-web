@@ -15,6 +15,7 @@ import ConfirmModal from '../components/ConfirmModal.jsx';
 import HomeView from '../components/HomeView.jsx';
 import LogoPlanifica from '../components/LogoPlanifica.jsx';
 import TasksView from '../components/TasksView.jsx';
+import { formatSpanishDateTime } from '../utils/formatters.js';
 
 const phrases = [
   'Organiza el dia con intencion.',
@@ -420,19 +421,6 @@ export default function DashboardPage() {
   }
 
   const isHomeView = activeView === 'inicio';
-  const formatGeneratedAt = (date) => {
-    if (!date) return '';
-
-    const pad = (value) => String(value).padStart(2, '0');
-    const day = pad(date.getDate());
-    const month = pad(date.getMonth() + 1);
-    const year = date.getFullYear();
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-
-    return `Generado el ${day}/${month}/${year} a las ${hours}:${minutes}`;
-  };
-
   return (
     <main className="dashboard" style={{ '--accent': user.neon_color }}>
       <aside className="sidebar">
@@ -597,7 +585,7 @@ export default function DashboardPage() {
             {aiPlan && !aiLoading && !aiError && (
               <div className="ai-result">
                 {aiGeneratedAt && (
-                  <p className="ai-generated-at">{formatGeneratedAt(aiGeneratedAt)}</p>
+                  <p className="ai-generated-at">Generado el {formatSpanishDateTime(aiGeneratedAt)}</p>
                 )}
 
                 <div className="ai-result-block">
