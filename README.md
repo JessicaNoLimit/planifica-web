@@ -156,6 +156,7 @@ Asistente de IA integrado para generar un enfoque breve del día a partir del co
 - Gestión completa de citas.
 - Calendario mensual con tareas y citas.
 - Asistente IA contextual "Mi enfoque de hoy".
+- Saludo personalizado con mensajes motivadores aleatorios al iniciar sesión.
 - Personalización visual con color neon.
 - Diseño responsive para móvil y escritorio.
 - Arquitectura frontend/backend desacoplada.
