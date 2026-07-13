@@ -433,6 +433,4 @@ Aunque actualmente el desarrollo está finalizado, cualquier sugerencia o mejora
 
 ## Licencia
 
-## Licencia
-
 Este proyecto se distribuye bajo la licencia MIT.
